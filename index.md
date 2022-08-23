@@ -132,7 +132,7 @@ void loop() {
 
 ## Dia 3 con Ferdi 23.08.2022  
 ### Prueba con Arduino con potenciometro y con un motor  
-11:30 - ??
+11:30 - 13:00h
 
 Tipo interesgarria jarraitzeko: pighixxx
 
