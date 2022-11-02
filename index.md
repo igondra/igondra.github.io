@@ -445,7 +445,7 @@ En la CNC tenemos que:
 Tuvimos un problema de corte con la CNC y tuvimos que repasar el agujero central ciego con el taladro y una broca de M12.  
 
 ## Día 16 (09/09/2022)
-## LLega la correa gt2 para las poleas  
+## Llega la correa gt2 para las poleas  
 Llegan las correas de 686mm de longitud. Las probamos y vemos que la medida está perfecta. 
 
 ## Montaje de los discos y de la madera del papel  
@@ -463,10 +463,45 @@ Ferdie se esmera con la cafetera y, tras limpiar una junta y ver que va bien, ca
 
 
 
-## Día 17 ()
+## Día 17-21 (10-13/09/2022)  
+## Cortamos la caja donde irá la electrónica  
+Con una tabla de material sobrante (madera de unos 5mm de espesor), cortamos unos listones con la radial y montamos una pequeña caja. Colamos los laterales a la base y dejamos un lateral sin colocar, ya que en ese lateral vamos a hacer un agujero para colocar el interruptor donde irá enchufado el cable de 3 puntas. La tapa también la dejamos suelta porque nuestra idea es poner unas visagras para que se pueda abrir desde arriba.  
 
+## Ultimando detalles  
+Dejamos pendiente terminar la electrónica (falta soldar todos los componentes), la caja, las barras y la pieza donde irá colocado el elemento que vaya a pintar sobre el papel. Dejamos en 13 de septiembre el Espacio Open para embarcarnos en otro proyecto: el máster de Diseño Estratégico de productos y servicios que vamos a hacer ambos en MU. Por unas semanas dejamos aparcado el proyecto para terminarlo más adelante.  
 
+## Día 18-19 (21 y 22/10/2022)  
+## Vuelta al proyecto! Soltando la electrónica  
+Pese a que nos llevamos material con la intención de soldar fuera del Espacio Open, aprovechamos un respiro que nos dió el máster para seguir con el proyecto. Teníamos ganas de soldar y aprovechamos la tarde del viernes para ello. Fuimos con el objetivo de terminar de soldar y lo logramos (el día siguiente jeje). A golpe de "plunga plunga", soldamos los cables a los componentes e hicimos una pequeña placa base que nos sirve para unificar la electrónica y hacerla de manera más organizada. De esta manera también podemos soltar los componentes por independiente y reemplazarlo o utilizarlos para otros fines (ya estamos pensando en otras máquinas en el futuro...!).  
 
+## Montar las barras  
+Con la gran ayuda de Kepa, cortamos las barras con la radial e hicimos los agujeros de M3 para unir las barras a los discos y unir las barras entre sí. Utilizamos las medidas que ha calculado la Excel y que vemos que dan buen resultado, ya que el dibujo no sale de la medida de 300x300mm.  
+
+## Montar la pieza que sujeta el elemento que pinta  
+Aprovechando el tirón de cortar las barras, a una de las barras le hacemos un pequeña hendidura para que podamos colocar la pieza que sujeta el elemento que va a pintar. La atornillamos con 2 tornillos de M3 y sus tuercas correspondientes para fijar la pieza. Parece que la máquina está lista para la primera prueba...
+
+## ¡¡¡Primera prueba!!!!  
+Tras montar las barras, ya teníamos posibilidad de montar la máquina y probarla dibujando por primera vez. Pusimos todo a punto y, con un público que quería verla funcionar, le dimos al start del programa en Arduino y... no funcionó. Nos dimos cuenta de que la placa se apagaba, que Arduino parecía que no funcionaba. Pensábamos lo peor: Arduino o la placa se habían roto. No habíamos olido en ningún momento a quemado, así que era dudoso que podía pasar algo así.  
+
+Finalmente, tiramos de comodín de Ferdie para averiguar qué podía pasar. Nos dijo que probablemente fuera un cortocircuito en algún punto del circuito, y que no nos preocupáramos porque Arduino y el ordenador tienen sistemas de seguridad para evitar que el corto haga daños. Tras escuchar esto, nos tranquilizamos y volveríamos pronto a la carga a resolverlo.
+
+## Día 20 (23/10/2022)
+## FUNCIONAAAAAA !!!!
+Con las pilas cargadas, volvimos a mirar con más cariño las conexiones electrónicas que habíamos hecho. Salió a la luz lo que había dicho Ferdie, y corregimos un par de conexiones que estaban mal. Parecía que todo estaba bien y volvimos a probar la máquina... pero nada. No logramos que funcionara hasta que se nos ocurrió probar con los cables de RX y TX desconectados. En esa ocasión... FUNCIONOOOOO!!! SIIII!!! Ya habemus máquina de crear arte!!! Saltamos de alegría y lo celebramos con una copa de champán por la noche.  
+
+El primer dibujo que tenemos de la máquina fue una bonita flor. Pensamos que nos está haciendo indirectas para que juntemos el arte que va a crear la máquina con las flores prensadas que tenemos. Veremos qué sale de esta curiosa unión...  
+
+## Invitación a la Maker Faire 2022 y Bilbao Design Week 2022  
+Casi no hemos terminado con la máquina y ya nos han llegado 2 ofertas de presentar la máquina: una en la Maker Faire, a la que ya sabíamos que íbamos a ir porque uno de los objetivos que busca Espacio Open es fomentar la creación y exponerla en este evento y la segunda es la Bilbao Design Week, que este año afortunadamente la organiza el equipo de Espacio Open junto con otros artistas de la zona de Zorrozaurre. Tenemos muchas ganas de prensentar la máquina al público y ver qué inspiraciones recibimos para continuar por este camino.  
+
+## Agradecimientos  
+Ferdie, por ayudarnos en cada peldaño y poder ir de la mano. Ahí estabas en cada reto que teníamos por delante. Sin tu ayuda no hubiese sido posible este proyecto. Has sido una pieza fundamental de este proyecto :-)
+Julián, por tu paciencia y apoyo en el transcurso del proyecto. El psichodelic trans también ayuda en la creación!
+Laura, por tu paciencia para realizar el material de comunicación.
+Nerea y equipo de Espacio Open, por habernos dado esta oportunidad de conocer este mundo y de crear algo desde la diversión. Esperamos seguir una larga relación con vosotros.  
+Al equipo del jardín secreto, por darnos de beber y de comer cuando hemos terminado exhaustos de tanto trabajar en el proyecto.  
+Al equipo de Biltrón por asesorarnos y ser tan pacientes y atentos con nosotros.  
+A Kepa y su paciencia con nosotros y con nuestras indicaciones. 
 
 
 

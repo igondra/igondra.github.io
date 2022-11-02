@@ -1,18 +1,10 @@
-<!DOCTYPE html><html><head>
-      <title>index</title>
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+      <title>Ongietorri  makinarte</title>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      
       <link rel="stylesheet" href="file:///c:\Users\Mikel\.vscode\extensions\shd101wyy.markdown-preview-enhanced-0.6.3\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
-      
-      
-      
-      
-      
-      
-      
-      
-      
       <style>
       /**
  * prism.js Github theme based on GitHub's theme.
@@ -268,7 +260,8 @@ pre[data-line] .line-highlight[data-end]:after {
  <img src="Irudiak/MakinArte.jpeg" width="250">  
 <h2 class="mume-header" id="dia-1-con-ferdi-11082022">Dia 1 con Ferdi 11.08.2022</h2>
 
-<p><strong>Masterclass sobre Steppers</strong></p>
+<p>16:00 - 18:00h<br>
+<strong>Masterclass sobre Steppers</strong></p>
 <p>Hay un tutorial completo sobre steppers en la web de Ferdi:<br>
 <a href="http://feadi.de/es/tutorials/steppers/">http://feadi.de/es/tutorials/steppers/</a></p>
 <p>Primer concepto de los motores a pasos (steppers):</p>
@@ -330,7 +323,7 @@ Encontrado documentacion del Arduino CNC-shield:<br>
 <li>descubrimos que el Microsecond delay va bien entre 50 y 2000us<br>
 <img src="Irudiak/image_poti.jpg"></li>
 </ul>
-<p>Utilizamos el exemplo</p>
+<p>Utilizamos el ejemplo</p>
 <p><code>File --&gt; examples --&gt; 01.Basics --&gt; ReadAnalogVoltage</code></p>
 <p>para testar el Poti.<br>
 Para ver los valores del Poti utilizamos el &quot;serial monitor&quot;<br>
@@ -371,22 +364,360 @@ void loop() {
     }
 </code></pre><h2 class="mume-header" id="dia-3-con-ferdi-23082022">Dia 3 con Ferdi 23.08.2022</h2>
 
-<h3 class="mume-header" id="prueba-con-arduino-con-potenciometro-y-con-un-motor">Prueba con Arduino con potenciometro y con un motor</h3>
-
 <p>11:30 - 13:00h</p>
-<p>Tipo interesgarria jarraitzeko: pighixxx</p>
-<p>Sintaxis de Markdown: <a href="https://www.markdownguide.org/cheat-sheet/">https://www.markdownguide.org/cheat-sheet/</a></p>
+<h3 class="mume-header" id="prueba-con-arduino-con-un-motor-y-potenciometro">Prueba con Arduino con un motor y potenciometro</h3>
+
+<p>Prueba con el motor colocado en la zona de movimiento en X del shield con un potenci&#xF3;metro para variar su velocidad.<br>
+En este programa utilizamos la misma estrategia que el programa anterior para variar la velocidad del motor: usamos la resta de tiempos (hora_actual - hora_previa) para mandarle las se&#xF1;ales que har&#xE1;n que el motor avance paso a paso.</p>
+<p>Convertimos la variaci&#xF3;n de resistencia dentro del potenci&#xF3;metro en diferencia de voltaje (0 - 5V). Esa diferencia de voltaje Arduino la registra como entrada (analogRead) y la convierte a un valor entre 0 y 1023. Es decir, escala los valores de 0 - 5 hasta 0 - 1023. Despu&#xE9;s, utilizamos ese valor num&#xE9;rico como microsegundos para determinar la activaci&#xF3;n y desactivaci&#xF3;n del pin que manda las se&#xF1;ales de activaci&#xF3;n del motor, haciendo que gire m&#xE1;s r&#xE1;pido o m&#xE1;s lento.</p>
+<p><em>prueba04_1stepper_ver_poti_2</em></p>
+<pre data-role="codeBlock" data-info class="language-"><code>const int xStep =  2; // pin del step del motor X (velocidad)
+
+int xStepState = LOW;
+
+// Generally, you should use &quot;unsigned long&quot; for variables that hold time
+// The value will quickly become too large for an int to store
+unsigned long previousmicros = 0;
+
+const long interval = 100;           // interval at which to blink (microseconds)
+
+void setup() 
+{
+  pinMode(xStep, OUTPUT);
+  pinMode(5, OUTPUT); // es para indicar la direcci&#xF3;n de giro
+  pinMode(2, OUTPUT); // es para indicar la velocidad de giro (step)
+  pinMode(8, OUTPUT); // es para activar el motor (enable)
+  Serial.begin(9600);
+  digitalWrite(8, LOW);
+}
+
+void loop() 
+{
+  int intervalX = analogRead(A0);
+
+  unsigned long currentmicros = micros();
+
+  if ((currentmicros - previousmicros &gt;= intervalX) 
+  {
+    previousmicros = currentmicros;
+    if (xStepState == LOW) 
+      xStepState = HIGH;
+    else
+      xStepState = LOW;
+
+    digitalWrite(xStep, xStepState);
+  }
+}
+</code></pre><h3 class="mume-header" id="prueba-con-arduino-una-vuelta-entera-del-motor">Prueba con Arduino una vuelta entera del motor</h3>
+
+<p>Hicimos este peque&#xF1;o programa para ver una vuelta entera del motor. Lo hicimos en el setup() para que no est&#xE9; continuamente haciendo la vuelta y as&#xED; saber que est&#xE1; bien programado (sino, no sabes d&#xF3;nde empieza y d&#xF3;nde acaba cada vuelta).<br>
+Para ello utilizamos un for{} que har&#xE1; 200 pasos, ya que cada paso del motor son 1.8&#xBA; x 200 = 360&#xBA;, que es una vuelta. Como hemos habilitado la opci&#xF3;n de microstepping, tenemos 1/16 de paso en cada activaci&#xF3;n del pin de step, por lo que tenemos que hacer un total de 200 x 16 = 3200 cambios del pin de step para dar una vuelta completa en el motor.<br>
+Como son 3200 cambios y cada cambio lo hace en un milisegundo, el motor tardar&#xE1; 3.2 segundos en hacer la vuelta completa.</p>
+<p><em>prueba05_1stepper_micropasos</em></p>
+<pre data-role="codeBlock" data-info class="language-"><code>void setup() 
+{               
+  pinMode(5, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(8, OUTPUT); //enable
+  digitalWrite(5, LOW);
+  digitalWrite(2, LOW);
+  digitalWrite(8, LOW);
+  for (int x = 0; x &lt; 200*16; x++) // Este for hace una vuelta entera del motor
+  { // Para que de una vuelta el stepper son 200 pasos x 16 microsteps cada paso
+    paso(); 
+  }
+}
+
+void loop() 
+{      
+}
+
+void paso()
+{
+  digitalWrite(2, HIGH);
+  delayMicroseconds(1000);         
+  digitalWrite(2, LOW);
+  delayMicroseconds(1000);  
+}  
+</code></pre><h3 class="mume-header" id="prueba-con-arduino-con-un-interruptor">Prueba con Arduino con un interruptor</h3>
+
+<p>En esta prueba instalamos un interruptor al pin 9. Hemos utilizado la opci&#xF3;n Pullup, que permite utilizar la resistencia interna de Arduino para circuitos donde se utilizan interruptores. Si no usamos esta opci&#xF3;n, tendremos que poner nosotros una resistencia en el circuito.<br>
+Usamos el pin 13 porque al pin 13 hay unido un diodo en la placa Arduino y as&#xED; podemos ver si est&#xE1; HIGH o LOW la salida del pin en funci&#xF3;n de si el led est&#xE1; encendido o apagado.</p>
+<p><em>prueba06_interruptor_led_pin13</em></p>
+<pre data-role="codeBlock" data-info class="language-"><code>void setup() 
+{
+  //start serial connection
+  Serial.begin(9600);
+  //configure pin 2 as an input and enable the internal pull-up resistor
+  pinMode(9, INPUT_PULLUP);
+  pinMode(13, OUTPUT);
+
+}
+
+void loop() 
+{
+  int sensorVal = digitalRead(9);
+  //print out the value of the pushbutton
+  Serial.println(sensorVal);
+
+  // Keep in mind the pull-up means the pushbutton&apos;s logic is inverted. It goes
+  // HIGH when it&apos;s open, and LOW when it&apos;s pressed. Turn on pin 13 when the
+  // button&apos;s pressed, and off when it&apos;s not:
+  if (sensorVal == HIGH)
+    digitalWrite(13, LOW);
+  else
+    digitalWrite(13, HIGH);
+}
+</code></pre><h3 class="mume-header" id="prueba-con-arduino-con-un-motor-potenciometro-e-interruptor">Prueba con Arduino con un motor, potenciometro e interruptor</h3>
+
+<p>En esta prueba incluimos la prueba con el potenci&#xF3;metro y la prueba con interruptor para controlar la velocidad y el direcci&#xF3;n de giro del motor.<br>
+El interruptor que utilizamos en un principio fue de 3 patas, y ten&#xED;a 3 posiciones: izquierda, centro y derecha. Nuestra idea era que estando en el centro el motor estuviese parado y girando la palanca a izquierda o derecha que el motor gire a un lado o a otro. De esta manera, nos hacen falta 2 pines para mandar la se&#xF1;al del interruptor al Arduino:</p>
+<ul>
+<li>directionX1: recoge la informaci&#xF3;n del pin xDirin1</li>
+<li>directionX2: recoge la informaci&#xF3;n del pin xDirin2<br>
+Utilizamos tambi&#xE9;n la opci&#xF3;n Pullup en los pines del interruptor para utilizar la resistencia interna de Arduino y as&#xED; no necesitamos colocar nosotros ninguna resistencia.</li>
+</ul>
+<p><em>prueba07_1stepper_vel_poti_interruptor_3pos.ino</em></p>
+<pre data-role="codeBlock" data-info class="language-"><code>// Pines del motor X del cnc shield
+const int xStep = 2;     // es para indicar la velocidad de giro (step)
+const int xDir = 5;       // es para indicar la direcci&#xF3;n de giro
+
+const int xDirin1 = 9;    // es para rotar el motor en una direccion (X- en el cnc shield)
+const int xDirin2 = 10;   // es para rotar el motor en la otra direccion (Y- en el cnc shield)
+
+int xStepState = LOW;
+
+unsigned long previousmicros = 0;
+
+
+void setup() 
+{
+  pinMode(8, OUTPUT);     // es para activar el motor (enable)
+
+  // Pines Output para motores
+  pinMode(xStep, OUTPUT); 
+  pinMode(xDir, OUTPUT); 
+
+  // Pines Input para motores
+  pinMode(xDirin1, INPUT_PULLUP); 
+  pinMode(xDirin2, INPUT_PULLUP); 
+
+  Serial.begin(9600);
+
+  // Para activar el enable y que los motores funcionen
+  digitalWrite(8, LOW);
+}
+
+void loop() 
+{
+  int intervalX = analogRead(A0);
+  bool directionX1 = digitalRead(xDirin1);
+  bool directionX2 = digitalRead(xDirin2);
+
+  unsigned long currentmicros = micros();
+
+  if ((currentmicros - previousmicros &gt;= intervalX) &amp;&amp; (directionX1 == LOW || directionX2 == LOW))
+  {
+    previousmicros = currentmicros;
+
+    if (xStepState == LOW) 
+      xStepState = HIGH;
+    else
+      xStepState = LOW;
+  }
+    digitalWrite(xStep, xStepState);
+
+    // Condiciones para que el motor gire en una direcci&#xF3;n o en la otra
+    if (directionX1 == HIGH)
+      digitalWrite(xDir, LOW);
+    if (directionX2 == HIGH)
+      digitalWrite(xDir, HIGH);
+}
+</code></pre><h3 class="mume-header" id="cambio-de-interruptor">Cambio de interruptor</h3>
+
+<p>Hemos tenido que cambiar el interruptor de 3 salidas a 2 salidas porque no tenemos pines suficientes para conectar todo lo que necesitamos. Tenemos 13 pines de entrada / salida y nos hacen falta 8 pines para las salidas de velocidades y direcci&#xF3;n de giro de los 4 motores. De esta manera, nos quedan 13 - 8 = 5 pines para los interruptores. Si queremos instalar los interruptores de 3 salidas, cada interruptor usar&#xED;a 2 pines, usando un total de 4 x 2 = 8 pines, por lo que no tenemos pines suficientes. Vamos a cambiar a los interruptores de 2 salidas porque as&#xED; solo usamos 1 pin por cada motor.</p>
+<h2 class="mume-header" id="dia-4-con-ferdi-25082022">Dia 4 con Ferdi 25.08.2022</h2>
+
+<p>18:00 - 19:30h</p>
+<h3 class="mume-header" id="prueba-con-3-motores-potenci%C3%B3metro-e-interruptor-de-2-posiciones">Prueba con 3 motores, potenci&#xF3;metro e interruptor de 2 posiciones</h3>
+
+<p>Primera prueba que nos funciona con 3 motores conectados, cada uno con su potenci&#xF3;metro y su interruptor de 2 posiciones. &#x1F603;</p>
+<h3 class="mume-header" id="imprimir-en-impresora-3d-la-pieza-para-unir-el-motor-con-la-base">Imprimir en impresora 3D la pieza para unir el motor con la base</h3>
+
+<p>Dejamos la electr&#xF3;nica de lado y nos volvemos con la estructura de la m&#xE1;quina.<br>
+Tenemos un problema para unir el motor con la base de madera de la m&#xE1;quina: los tornillos que tiene el motor en la parte inferior hace que no se pueda atornillar nada a la base desde abajo. Tras estudiar varias opciones, decidimos que vamos a hacer una pieza impresa en 3D que ir&#xE1; unida al motor con 2 de los tornillos que cierran el motor y esta pieza a su vez tendr&#xE1; 4 tornillos para amarrar la pieza a la base de madera.</p>
+<h4 class="mume-header" id="crear-el-modelo-3d-en-freecad">Crear el modelo 3D en FreeCad</h4>
+
+<p>Creamos el modelo 3D en el programa FreeCad. Por suerte, ya hemos trabajado con programas CAD tales como CATIA o NX y ya conocemos el funcionamiento de estos programas. Hacer la placa deber&#xED;a resultar una tarea sencilla. Sino, se puede usar otro programa, muy intuituvo, llamado TinkerCad. Nosotros decidimos utilizar el FreeCad para conocerlo, ya que el FreeCad permite realizar geometr&#xED;a m&#xE1;s complejas que TimkerCad. Podemos utilizar cualquier programa CAD que genera una malla de puntos (.stl) al final del proceso, ya que usaremos ese archivo para llevar al programa que crear&#xE1; el recorrido de la m&#xE1;quina 3D.</p>
+<p>Una vez hemos creado la pieza, exportamos la geometr&#xED;a como .stl</p>
+<h4 class="mume-header" id="crear-el-archivo-para-la-m%C3%A1quina-3d">Crear el archivo para la m&#xE1;quina 3D</h4>
+
+<p>Importamos la malla de puntos (.stl) al programa de la m&#xE1;quina 3D. En este caso hemos elegido PrusaSlicer, y le hemos puesto la configuraci&#xF3;n de la m&#xE1;quina 3D que vamos a utilizar. En este programa se introducen varios par&#xE1;metros importantes para la hora de imprimir el material, tales como: temperaturas de impresi&#xF3;n del material, % de material para rellenar el s&#xF3;lido, espesor de las capas...  El % de material es importante, y en muchos casos no es necesario que sea el 100%, ya que son piezas que tienen poca solicitaci&#xF3;n mec&#xE1;nica. Nosotros hemos utilizado el 25%, y es un valor que est&#xE1; bien para una pieza que, como hemos dicho, no va a estar solicitada mec&#xE1;nicamente. De esta manera ahorramos mucho tiempo y material.<br>
+Una vez hemos configurado los par&#xE1;metros, el programa genera un archivo .gcode que introduciremos en la m&#xE1;quina de impresi&#xF3;n 3D con un pen-drive.</p>
+<h4 class="mume-header" id="imprimir-en-la-m%C3%A1quina-3d">Imprimir en la m&#xE1;quina 3D</h4>
+
+<p>Vamos a la m&#xE1;quina 3D e introducimos el pen-drive. Encendemos la m&#xE1;quina y seleccionamos el archivo .gcode que hemos generado. Seleccionamos y la m&#xE1;quina empieza a imprimir a de unos pocos segundos, cuando se calienta el cabezal. Hace unas peque&#xF1;as l&#xED;neas de prueba y enseguida empieza a imprimir la pieza.<br>
+En nuestro caso, aunque la pieza sea peque&#xF1;a ha tardado una hora en imprimir la pieza completa. Una vez impresa, pr&#xE1;cticamente se puede quitar con una esp&#xE1;tula porque se enfr&#xED;a enseguida.</p>
+<h2 class="mume-header" id="d%C3%ADa-6-y-7-27-y-28082022-fin-de-semana">D&#xED;a 6 y 7 (27 y 28/08/2022, fin de semana)</h2>
+
+<h3 class="mume-header" id="decisi%C3%B3n-de-hacer-el-3d">Decisi&#xF3;n de hacer el 3D</h3>
+
+<p>Tomamos la decisi&#xF3;n de hacer el 3D en el programa FreeCad para facilitarnos la labor de dimensionar y fabricar las piezas 3D, adem&#xE1;s de visualizar y prever posibles problemas. Empleamos casi todo el domingo en empezar a hacer las primeras piezas del CAD.</p>
+<h2 class="mume-header" id="d%C3%ADa-8-29082022">D&#xED;a 8 (29/08/2022)</h2>
+
+<h3 class="mume-header" id="imprimir-en-3d-la-pieza-que-sujeta-la-polea-grande-a-la-base-de-la-m%C3%A1quina">Imprimir en 3D la pieza que sujeta la polea grande a la base de la m&#xE1;quina</h3>
+
+<p>Hicimos el modelo 3D de esta pieza y seguimos los sabios consejos de Ferdi de utilizar rodamientos esf&#xE9;ricos para sujetar bien el eje a la pieza. Para que el eje se sujete bien vamos a utilizar dos rodamientos, separados por una tuerza, para que la rotaci&#xF3;n del eje sea lo m&#xE1;s vertical posible. Esta pieza ya es m&#xE1;s grande y tarda unas 3h en imprimirse.</p>
+<h2 class="mume-header" id="d%C3%ADa-9-30082022">D&#xED;a 9 (30/08/2022)</h2>
+
+<h3 class="mume-header" id="imprimir-en-3d-la-polea-grande-que-sujeta-la-base-del-papel">Imprimir en 3D la polea grande que sujeta la base del papel</h3>
+
+<p>Hicimos la pieza m&#xE1;s grande que vamos a imprimir en 3D: la polea dentada que recibe el movimiento del cuarto motor y que girar&#xE1; el papel.<br>
+Para asegurarnos de que hab&#xED;amos dibujado bien los dientes, imprimimos un peque&#xF1;o pedazo en 3D para chequear con una cinta dentada que funcionaba. Era algo cr&#xED;tico, ya que los huecos para los dientes de la cinta tienen que ser muy precisos, sino no transmitimos bien el movimiento al eje.<br>
+La pieza, de di&#xE1;metro 200mm, casi llega a los l&#xED;mites de la impresora 3D (220mm). Por suerte, estamos dentro de los l&#xED;mites. Tras 11 horas imprimiendo, la pieza sali&#xF3; perfectamente de la m&#xE1;quina de imprimir.</p>
+<h2 class="mume-header" id="d%C3%ADa-10-31082022">D&#xED;a 10 (31/08/2022)</h2>
+
+<h3 class="mume-header" id="decisi%C3%B3n-de-hacer-un-prototipo">Decisi&#xF3;n de hacer un prototipo</h3>
+
+<p>Tras ver las dificultades que tenemos para librar la diferencias de altura entre discos y la base donde va el papel, decidimos hacer un prototipo para ver las dimensiones in situ y chequear tambi&#xE9;n que la electr&#xF3;nica funciona bien. Hemos visto que Robert Balke, nuestro artista de referencia, utiliza planetario (1:19 posiblemente) para reducir la velocidad de los motores de los discos. Nosotros creemos que nos podemos evitar utilizarlos, ya que tampoco son unos componentes baratos (cada uno cuesta unos 30-40&#x20AC;, lo que aumenta bastante nuestro presupuesto).</p>
+<h3 class="mume-header" id="continuar-dibujando-el-3d">Continuar dibujando el 3D</h3>
+
+<h2 class="mume-header" id="d%C3%ADa-11-01092022">D&#xED;a 11 (01/09/2022)</h2>
+
+<h3 class="mume-header" id="dise%C3%B1o-de-la-uni%C3%B3n-entre-el-eje-del-motor-y-los-discos">Dise&#xF1;o de la uni&#xF3;n entre el eje del motor y los discos</h3>
+
+<p>Han surgido muchas ideas para esta uni&#xF3;n: desde piezas impresas en pl&#xE1;stico hasta piezas comerciales que hemos encontrado en Internet.<br>
+Parece que vamos a optar por una opci&#xF3;n comercial que tiene una rosca de M10 en la punta, donde enroscaremos el disco. En el disco taladraremos un agujero para meterle una hembra de M10 que enrosque con la pieza.</p>
+<h2 class="mume-header" id="d%C3%ADa-12-02092022">D&#xED;a 12 (02/09/2022)</h2>
+
+<h3 class="mume-header" id="escaneo-de-engranajes-de-spirograph-para-utilizar-en-freecad">Escaneo de engranajes de spirograph para utilizar en FreeCad</h3>
+
+<ol>
+<li>Escaneamos las piezas en un esc&#xE1;ner</li>
+<li>Abrimos el FreeCad y creamos un Body</li>
+<li>Seleccionamos el men&#xFA; de Image y abrimos la imagen con el icono de &quot;Crear plano de imagen...&quot;</li>
+<li>Importamos la imagen en el plano que nos interese (a nosotros el plano XY)</li>
+<li>Podemos escalar la imagen con el bot&#xF3;n de &quot;Escala del plano de la imagen&quot;. Para ello nos hace falta una medida entre dos puntos. Nosotros hemos escogido el di&#xE1;metro de los discos como referencia.</li>
+<li>Una vez hecho esto, se pueden hacer sketch encima de la imagen a escala real y tomarla como referencia para crear piezas o lo que queramos con ellas.</li>
+</ol>
+<h3 class="mume-header" id="aprendemos-a-hacer-moldes-con-silicona-y-maicena">Aprendemos a hacer moldes con silicona y maicena</h3>
+
+<p>Est&#xE1; apuntado en el Whatsapp de Makinarte el proceso de elaboraci&#xF3;n</p>
+<h2 class="mume-header" id="d%C3%ADa-13-05092022">D&#xED;a 13 (05/09/2022)</h2>
+
+<h3 class="mume-header" id="imprimimos-la-pieza-de-uni%C3%B3n-del-motor-central-con-la-base-de-madera">Imprimimos la pieza de uni&#xF3;n del motor central con la base de madera</h3>
+
+<p>Esta pieza es muy similar a las otras 3 piezas imprimidas; la &#xFA;nica diferencia es que los agujeros son rasgados. Los hemos hecho rasgados para poder ajustar la tensi&#xF3;n de la cinta de la polea. La distancia de la cinta la hemos calculado con una macro de FreeCad y a mano para chequearlo.</p>
+<h3 class="mume-header" id="visita-a-leroy-merlin-a-coger-ideas">Visita a Leroy Merlin a coger ideas</h3>
+
+<p>Cogemos ideas para la uni&#xF3;n del eje del motor con los discos. Vamos a la secci&#xF3;n de herramientas, donde pensamos que podemos encontrar algo interesante porque la uni&#xF3;n de los ejes de los taladros con discos para cortar y pulir pueden ser similares. Pese a disponer de pocas soluciones, cogemos la idea de utilizar un portabrocas o similar para unir el eje con el disco, poni&#xE9;ndole a este &#xFA;ltimo un eje para poder agarrarlo con el portabrocas.</p>
+<h3 class="mume-header" id="compra-de-varios-elementos-que-nos-faltan">Compra de varios elementos que nos faltan</h3>
+
+<p>Compramos la correa gt2 de longitud 686mm, los mandrinos con los que finalmente uniremos los ejes de los motores a los discos y una brida r&#xED;gida para unir el elemento que va a pintar a la estructura de barras. Todo esto nos llegar&#xE1; en los pr&#xF3;ximos d&#xED;as.</p>
+<h2 class="mume-header" id="d%C3%ADa-14-06092022">D&#xED;a 14 (06/09/2022)</h2>
+
+<h3 class="mume-header" id="seguimos-dibujando-el-cad">Seguimos dibujando el CAD</h3>
+
+<p>A&#xF1;adimos los mandrinos, terminamos de dise&#xF1;ar los discos y a&#xF1;adimos las barras met&#xE1;licas. El CAD ya est&#xE1; casi terminado &#x1F603; Ahora queda terminar con el prototipo y decidir c&#xF3;mo dise&#xF1;ar el modelo definitivo de m&#xE1;quina.</p>
+<img src="Irudiak/Proyecto en FreeCad 2022-09-06.jpg" width="500">
+<h2 class="mume-header" id="d%C3%ADa-15-08092022">D&#xED;a 15 (08/09/2022)</h2>
+
+<h3 class="mume-header" id="llegan-los-mandrinos-y-la-brida-r%C3%ADgida">Llegan los mandrinos y la brida r&#xED;gida</h3>
+
+<p>Llegan estos elementos, con lo que ya podemos ver c&#xF3;mo va a quedar la uni&#xF3;n de los motores con los discos. De esta manera tambi&#xE9;n podemos empezar a cortar tanto los discos con la madera donde ir&#xE1; el papel en la CNC, que ya est&#xE1; lista despu&#xE9;s de que Ferdi dise&#xF1;ara la caja donde ir&#xE1; la electr&#xF3;nica.</p>
+<h3 class="mume-header" id="aprendemos-a-utilizar-la-cnc">Aprendemos a utilizar la CNC</h3>
+
+<p>Ferdie nos ense&#xF1;a c&#xF3;mo crear un gcode (mismo tipo de archivo que utiliza la printer 3D) para que la cnc mecanice en el progama FreeCad. Con lo que nos ense&#xF1;a conseguimos mecanizar en la cnc los discos que van encima de los motores.</p>
+<p>Para empezar debemos crear la pieza que vamos a cortar en la cnc (llamada &quot;stock&quot;). Nosotros utilizamos el resto de material que nos qued&#xF3; tras cortar la pieza que sujeta el papel. Era una madera de 350mm x 150mm aprox. Dibujamos esta pieza con el m&#xF3;dulo de &quot;Part Design&quot;, como hemos hecho hasta ahora.</p>
+<p>Despu&#xE9;s de crear el part donde cortaremos las piezas, importamos las piezas que vamos a cortar y la pieza de corte a un assembly nuevo. Podemos crear v&#xED;nculos, sin necesidad de crear las piezas otra vez, creando &quot;crear pieza&quot; (es el mismo icono que &quot;crear cuerpo&quot; pero en amarillo) y despu&#xE9;s se selecciona la pieza que se quiere vincular y se le da al bot&#xF3;n &quot;Crear v&#xED;nculo&quot;. De esta manera, dentro de la pieza se queda el part original linkado.</p>
+<img src="Irudiak/cnc_discos y stock.jpg" width="500">  
+<p>Para mover las piezas a las posiciones que queremos, tenemos que darle click derecho a la pieza y elegir &quot;transformar&quot;. Aparecen unos ejes, donde podremos rotar y desplazar la pieza. Clicando en la punta de las flechas y arrastrando podemos mover la pieza. La podemos girar tambi&#xE9;n si es necesario.</p>
+<img src="Irudiak/cnc_mover piezas.jpg" width="500">  
+<p>Cambiamos al m&#xF3;dulo de &quot;Path&quot;. En este m&#xF3;dulo vamos a definir las operaciones que va a realizar la CNC. En nuestro caso, haremos unos agujeros pasantes (operaci&#xF3;n &quot;Forma de vaciado&quot; en FreeCad), unos agujeros ciegos (tambi&#xE9;n en la operaci&#xF3;n &quot;Forma de vaciado&quot;) y el contorno de la pieza (operaci&#xF3;n &quot;Cara&quot; en FreeCad); 3 operaciones en total. Seleccionamos la opci&#xF3;n &quot;Trabajo&quot; para empezar a definir los par&#xE1;metros. Aqu&#xED; se nos indica el que va a ser el punto (0,0,0) de la cnc.</p>
+<ol>
+<li>Definimos en la pesta&#xF1;a &quot;General&quot;, dentro de &quot;Trabajo&quot;, las geometr&#xED;as que vamos a usar, que son todas: el stock y los discos en este caso.</li>
+<li>Definimos tambi&#xE9;n el procesador, en la pesta&#xF1;a &quot;Salida&quot;, y escogeremos &quot;smoothie&quot;.</li>
+<li>Dentro de &quot;Configuraci&#xF3;n&quot;, en el Inventario escogemos &quot;Usar s&#xF3;lido existente&quot; y escojemos el stock que hemos creado antes.</li>
+</ol>
+<p>La cnc utiliza una broca de 4mm de di&#xE1;metro y nuestros agujeros son de 5mm de di&#xE1;metro, con lo que est&#xE1; OK. Aun as&#xED;, como ver&#xED;amos m&#xE1;s adelante, los agujeros de 5mm de di&#xE1;metro han quedado un poco peque&#xF1;os y los hemos tenido que repasar con un taladro de di&#xE1;metro 5mm. Parece que si el di&#xE1;metro de agujero es un poco m&#xE1;s grande que la broca no lo hace del todo bien. En todas estas operaciones del FreeCad, debemos definir las bases de la geometr&#xED;a que van a ser de referencia para cada operaci&#xF3;n, las profundidades a las que se va a llegar a mecanizar (en nuestro caso casi todo pasante, por lo que ser&#xE1; el espesor de la pieza a cortar) y el controlador de la herramienta (en nuestro caso 4mm_endmill). Si se definen bien las operaciones, aparecer&#xE1;n unas l&#xED;neas verdes y rojas en el CAD: indican el recorrido que hace la herramienta haciendo las operaciones que hemos definido y los saltos de una operaci&#xF3;n a otra respectivamente.</p>
+<img src="Irudiak/cnc_imagen operacion profile.jpg" width="500">  
+<p>Truco: Hay operaciones que requieren que peque&#xF1;as &#xE1;reas del mecanizado no se realicen. Por ejemplo, cuando se cortan piezas grandes, se dejan unas peque&#xF1;as zonas sin cortar para terminar de cortarlas despu&#xE9;s a mano. As&#xED;, se evita que la pieza se mueva mientras se terminan de hacer todas las operaciones correctamente. FreeCad permite introducir estos elementos y darles una dimensi&#xF3;n acorde a nuestras preferencias.</p>
+<p>Limitamos la velocidad de la broca en direcci&#xF3;n X e Y a 6000mm/min.</p>
+<p>Una vez hemos terminado de definir las operaciones, hay que exportar el gcode. Para ello, seleccionamos el bot&#xF3;n &quot;Post Procesar&quot;. Con ello ya tenemos el gcode generado.</p>
+<p>Vamos a la CNC!</p>
+<p>En la CNC tenemos que:</p>
+<ol>
+<li>Alinear bien la pieza que queremos cortar en la mesa de trabajo. Nosotros la alineamos con el (0,0,0) de la m&#xE1;quina.</li>
+<li>Amarrar bien la pieza a la mesa de trabajo. Para ello utilizamos 2 tornillos.</li>
+<li>Hacer pruebas antes de hacer el mecanizado final para ver que todo est&#xE1; OK.</li>
+<li>Para la prueba, ajustamos la posici&#xF3;n local de la broca en la mesa de trabajo, en los ejes X, y y Z.</li>
+<li>Una vez ajustamos la posici&#xF3;n, guardamos los valores.</li>
+<li>Una vez guardados los valores, podemos empezar el programa. Este programa no lo empezamos con la broca encendida, ya que vamos a chequear tanto la velocidad de la m&#xE1;quina como sus movimientos.</li>
+<li>Una vez vemos que en la prueba est&#xE1;n bien la velocidad y los movimientos, pasamos a la operaci&#xF3;n defintiva.</li>
+<li>Reprogramamos las coordenadas locales a las posiciones correctas. Para ellos, primero ajustamos bien la Z fuera de &#xE1;rea donde tenemos la pieza atada (para que coja bien la coordenada Z) y despu&#xE9;s ajustaremos X e Y.</li>
+<li>Una vez ajustadas las coordenadas locales, las guardamos.</li>
+<li>Encendemos la broca.</li>
+<li>Corremos el programa final con la broza en marcha.</li>
+<li>Durante el corte, chequeamos que va bien y retiramos de vez en cuando la viruta generada por la broca.</li>
+</ol>
+<p>Tuvimos un problema de corte con la CNC y tuvimos que repasar el agujero central ciego con el taladro y una broca de M12.</p>
+<h2 class="mume-header" id="d%C3%ADa-16-09092022">D&#xED;a 16 (09/09/2022)</h2>
+
+<h2 class="mume-header" id="llega-la-correa-gt2-para-las-poleas">Llega la correa gt2 para las poleas</h2>
+
+<p>Llegan las correas de 686mm de longitud. Las probamos y vemos que la medida est&#xE1; perfecta.</p>
+<h2 class="mume-header" id="montaje-de-los-discos-y-de-la-madera-del-papel">Montaje de los discos y de la madera del papel</h2>
+
+<p>Montamos los discos con las hembras roscadas de M10 que compramos. Han costado meter porque el agujero que ten&#xED;amos era de M12 y ped&#xED;a algo m&#xE1;s grande. A&#xFA;n as&#xED;, hemos conseguido meter las piezas y hemos tenido problemas para que queden bien alineadas. Roscamos los discos a los machos que nos han quedado en los motores (despu&#xE9;s de instalar los madrinos) y vemos que roscan perfectamente y que quedan bastante bien alineados. &#xA1;Vamos avanzando!</p>
+<p>La madera de papel la hemos amarrado a la polea grande con 3 tornillos. Hab&#xED;amos previsto 6 agujeros para meter 6 posibles tornillos. Vemos que con 3 es suficiente, as&#xED; que vamos con esos 3.</p>
+<h2 class="mume-header" id="probamos-la-electr%C3%B3nica-con-3-motores">Probamos la electr&#xF3;nica con 3 motores</h2>
+
+<p>Corremos el programa de Arduino que hab&#xED;amos programado con 3 motores y vemos que funciona, que se mueven perfectamente sin problema los 3 motores de los discos. El cuarto motor, el que gira la base donde ir&#xE1; el papel, no lo tenemos programado y, por lo tanto, no lo podemos probar. Lo probaremos m&#xE1;s adelante.</p>
+<h2 class="mume-header" id="empieza-el-repair-caf%C3%A9-de-espacio-open">Empieza el Repair Caf&#xE9; de Espacio Open!</h2>
+
+<p>Ferdie abre la primera sesi&#xF3;n del repair caf&#xE9;. Como no pudo tener difusi&#xF3;n por las redes, no acude nadie. Sin embargo, aparecen pacientes para ser reparados: una m&#xE1;quina de caf&#xE9; de c&#xE1;psulas que pierde agua, una vieja l&#xE1;mpara que no da luz... El repair caf&#xE9; empieza con buen pie.</p>
+<p>Ferdie se esmera con la cafetera y, tras limpiar una junta y ver que va bien, canta victoria y da la cafetera por reparada. Celebrando y tomando un caf&#xE9; en su honor, vemos que pierde agua... as&#xED; que la cafetera pasa a quir&#xF3;fano otra vez! Esta vez la abrimos y Ferdie se da un descanso y dice que prefiere seguir la faena el proximo d&#xED;a. Veremos cu&#xE1;l es el desenlace m&#xE1;s adelante.</p>
+<h2 class="mume-header" id="d%C3%ADa-17-21-10-13092022">D&#xED;a 17-21 (10-13/09/2022)</h2>
+
+<h2 class="mume-header" id="cortamos-la-caja-donde-ir%C3%A1-la-electr%C3%B3nica">Cortamos la caja donde ir&#xE1; la electr&#xF3;nica</h2>
+
+<p>Con una tabla de material sobrante (madera de unos 5mm de espesor), cortamos unos listones con la radial y montamos una peque&#xF1;a caja. Colamos los laterales a la base y dejamos un lateral sin colocar, ya que en ese lateral vamos a hacer un agujero para colocar el interruptor donde ir&#xE1; enchufado el cable de 3 puntas. La tapa tambi&#xE9;n la dejamos suelta porque nuestra idea es poner unas visagras para que se pueda abrir desde arriba.</p>
+<h2 class="mume-header" id="ultimando-detalles">Ultimando detalles</h2>
+
+<p>Dejamos pendiente terminar la electr&#xF3;nica (falta soldar todos los componentes), la caja, las barras y la pieza donde ir&#xE1; colocado el elemento que vaya a pintar sobre el papel. Dejamos en 13 de septiembre el Espacio Open para embarcarnos en otro proyecto: el m&#xE1;ster de Dise&#xF1;o Estrat&#xE9;gico de productos y servicios que vamos a hacer ambos en MU. Por unas semanas dejamos aparcado el proyecto para terminarlo m&#xE1;s adelante.</p>
+<h2 class="mume-header" id="d%C3%ADa-18-19-21-y-22102022">D&#xED;a 18-19 (21 y 22/10/2022)</h2>
+
+<h2 class="mume-header" id="vuelta-al-proyecto-soltando-la-electr%C3%B3nica">Vuelta al proyecto! Soltando la electr&#xF3;nica</h2>
+
+<p>Pese a que nos llevamos material con la intenci&#xF3;n de soldar fuera del Espacio Open, aprovechamos un respiro que nos di&#xF3; el m&#xE1;ster para seguir con el proyecto. Ten&#xED;amos ganas de soldar y aprovechamos la tarde del viernes para ello. Fuimos con el objetivo de terminar de soldar y lo logramos (el d&#xED;a siguiente jeje). A golpe de &quot;plunga plunga&quot;, soldamos los cables a los componentes e hicimos una peque&#xF1;a placa base que nos sirve para unificar la electr&#xF3;nica y hacerla de manera m&#xE1;s organizada. De esta manera tambi&#xE9;n podemos soltar los componentes por independiente y reemplazarlo o utilizarlos para otros fines (ya estamos pensando en otras m&#xE1;quinas en el futuro...!).</p>
+<h2 class="mume-header" id="montar-las-barras">Montar las barras</h2>
+
+<p>Con la gran ayuda de Kepa, cortamos las barras con la radial e hicimos los agujeros de M3 para unir las barras a los discos y unir las barras entre s&#xED;. Utilizamos las medidas que ha calculado la Excel y que vemos que dan buen resultado, ya que el dibujo no sale de la medida de 300x300mm.</p>
+<h2 class="mume-header" id="montar-la-pieza-que-sujeta-el-elemento-que-pinta">Montar la pieza que sujeta el elemento que pinta</h2>
+
+<p>Aprovechando el tir&#xF3;n de cortar las barras, a una de las barras le hacemos un peque&#xF1;a hendidura para que podamos colocar la pieza que sujeta el elemento que va a pintar. La atornillamos con 2 tornillos de M3 y sus tuercas correspondientes para fijar la pieza. Parece que la m&#xE1;quina est&#xE1; lista para la primera prueba...</p>
+<h2 class="mume-header" id="primera-prueba">&#xA1;&#xA1;&#xA1;Primera prueba!!!!</h2>
+
+<p>Tras montar las barras, ya ten&#xED;amos posibilidad de montar la m&#xE1;quina y probarla dibujando por primera vez. Pusimos todo a punto y, con un p&#xFA;blico que quer&#xED;a verla funcionar, le dimos al start del programa en Arduino y... no funcion&#xF3;. Nos dimos cuenta de que la placa se apagaba, que Arduino parec&#xED;a que no funcionaba. Pens&#xE1;bamos lo peor: Arduino o la placa se hab&#xED;an roto. No hab&#xED;amos olido en ning&#xFA;n momento a quemado, as&#xED; que era dudoso que pod&#xED;a pasar algo as&#xED;.</p>
+<p>Finalmente, tiramos de comod&#xED;n de Ferdie para averiguar qu&#xE9; pod&#xED;a pasar. Nos dijo que probablemente fuera un cortocircuito en alg&#xFA;n punto del circuito, y que no nos preocup&#xE1;ramos porque Arduino y el ordenador tienen sistemas de seguridad para evitar que el corto haga da&#xF1;os. Tras escuchar esto, nos tranquilizamos y volver&#xED;amos pronto a la carga a resolverlo.</p>
+<h2 class="mume-header" id="d%C3%ADa-20-23102022">D&#xED;a 20 (23/10/2022)</h2>
+
+<h2 class="mume-header" id="funcionaaaaaa">FUNCIONAAAAAA !!!!</h2>
+
+<p>Con las pilas cargadas, volvimos a mirar con m&#xE1;s cari&#xF1;o las conexiones electr&#xF3;nicas que hab&#xED;amos hecho. Sali&#xF3; a la luz lo que hab&#xED;a dicho Ferdie, y corregimos un par de conexiones que estaban mal. Parec&#xED;a que todo estaba bien y volvimos a probar la m&#xE1;quina... pero nada. No logramos que funcionara hasta que se nos ocurri&#xF3; probar con los cables de RX y TX desconectados. En esa ocasi&#xF3;n... FUNCIONOOOOO!!! SIIII!!! Ya habemus m&#xE1;quina de crear arte!!! Saltamos de alegr&#xED;a y lo celebramos con una copa de champ&#xE1;n por la noche.</p>
+<p>El primer dibujo que tenemos de la m&#xE1;quina fue una bonita flor. Pensamos que nos est&#xE1; haciendo indirectas para que juntemos el arte que va a crear la m&#xE1;quina con las flores prensadas que tenemos. Veremos qu&#xE9; sale de esta curiosa uni&#xF3;n...</p>
+<h2 class="mume-header" id="invitaci%C3%B3n-a-la-maker-faire-2022-y-bilbao-design-week-2022">Invitaci&#xF3;n a la Maker Faire 2022 y Bilbao Design Week 2022</h2>
+
+<p>Casi no hemos terminado con la m&#xE1;quina y ya nos han llegado 2 ofertas de presentar la m&#xE1;quina: una en la Maker Faire, a la que ya sab&#xED;amos que &#xED;bamos a ir porque uno de los objetivos que busca Espacio Open es fomentar la creaci&#xF3;n y exponerla en este evento y la segunda es la Bilbao Design Week, que este a&#xF1;o afortunadamente la organiza el equipo de Espacio Open junto con otros artistas de la zona de Zorrozaurre. Tenemos muchas ganas de prensentar la m&#xE1;quina al p&#xFA;blico y ver qu&#xE9; inspiraciones recibimos para continuar por este camino.</p>
+<h2 class="mume-header" id="agradecimientos">Agradecimientos</h2>
+
+<p>Ferdie, por ayudarnos en cada pelda&#xF1;o y poder ir de la mano. Ah&#xED; estabas en cada reto que ten&#xED;amos por delante. Sin tu ayuda no hubiese sido posible este proyecto. Has sido una pieza fundamental de este proyecto &#x1F603;<br>
+Juli&#xE1;n, por tu paciencia y apoyo en el transcurso del proyecto. El psichodelic trans tambi&#xE9;n ayuda en la creaci&#xF3;n!<br>
+Laura, por tu paciencia para realizar el material de comunicaci&#xF3;n.<br>
+Nerea y equipo de Espacio Open, por habernos dado esta oportunidad de conocer este mundo y de crear algo desde la diversi&#xF3;n. Esperamos seguir una larga relaci&#xF3;n con vosotros.<br>
+Al equipo del jard&#xED;n secreto, por darnos de beber y de comer cuando hemos terminado exhaustos de tanto trabajar en el proyecto.<br>
+Al equipo de Biltr&#xF3;n por asesorarnos y ser tan pacientes y atentos con nosotros.<br>
+A Kepa y su paciencia con nosotros y con nuestras indicaciones.</p>
 
       </div>
-      
-      
-    
-    
-    
-    
-    
-    
-    
-    
-  
     </body></html>
